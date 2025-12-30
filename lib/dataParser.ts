@@ -77,25 +77,32 @@ export function parseCSVText(csvText: string): Promise<CloudArmorRule[]> {
     });
 }
 
-// Fetch and parse CSV from URL via server-side API
+// Fetch and parse CSV from URL (client-side)
 export async function fetchFromURL(url: string): Promise<CloudArmorRule[]> {
+    const csvUrl = convertToCSVUrl(url);
+
     try {
-        // Use our API route to bypass CORS
-        const response = await fetch('/api/fetch-sheet', {
-            method: 'POST',
+        const response = await fetch(csvUrl, {
             headers: {
-                'Content-Type': 'application/json',
+                'Accept': 'text/csv,text/plain,*/*',
             },
-            body: JSON.stringify({ url }),
+            cache: 'no-store',
         });
 
-        const result = await response.json();
-
-        if (!response.ok || result.error) {
-            throw new Error(result.error || `HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                throw new Error('Access denied. Please ensure your Google Sheet is "Published to the web" as CSV format and visible to "Anyone with the link".');
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const csvText = result.data;
+        const csvText = await response.text();
+
+        // Check if we got HTML instead of CSV
+        if (csvText.includes('<!DOCTYPE html>') || csvText.includes('<html')) {
+            throw new Error('Google Sheets returned HTML instead of CSV. Please check that you published the sheet to the web and selected "Comma-separated values (.csv)" format.');
+        }
+
         const rules = await parseCSVText(csvText);
 
         if (rules.length === 0) {
