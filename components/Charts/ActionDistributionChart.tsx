@@ -57,7 +57,7 @@ export default function ActionDistributionChart({ data, isLoading, title = 'Acti
                 callbacks: {
                     title: (items) => items[0]?.label || '',
                     label: (context) => {
-                        const value = context.parsed.y;
+                        const value = context.parsed.y ?? 0;
                         const percentage = totalRules > 0 ? ((value / totalRules) * 100).toFixed(1) : '0';
                         return ` ${value} rules (${percentage}%)`;
                     },

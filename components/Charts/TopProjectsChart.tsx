@@ -59,9 +59,9 @@ export default function TopProjectsChart({ data, isLoading }: TopProjectsChartPr
                 callbacks: {
                     title: (items) => {
                         const index = items[0]?.dataIndex;
-                        return data[index]?.project || '';
+                        return index !== undefined ? (data[index]?.project || '') : '';
                     },
-                    label: (context) => ` ${context.parsed.x} policies`,
+                    label: (context) => ` ${context.parsed.x ?? 0} policies`,
                 },
             },
         },

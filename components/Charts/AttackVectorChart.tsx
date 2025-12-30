@@ -66,7 +66,7 @@ export default function AttackVectorChart({ data, isLoading, title = 'Attack Vec
                 callbacks: {
                     title: (items) => items[0]?.label || '',
                     label: (context) => {
-                        const value = context.parsed;
+                        const value = context.parsed ?? 0;
                         const percentage = totalRules > 0 ? ((value / totalRules) * 100).toFixed(1) : '0';
                         return ` ${value} rules (${percentage}%)`;
                     },
